@@ -2,7 +2,7 @@ namespace: scada-dev
 
 frontend:
   replicaCount: 2
-  image: digigrad/scada-frontend:v7
+  image: digigrad/scada-frontend:v1
   strategy:
       maxSurge: 1
       maxUnavailable: 1
@@ -35,7 +35,7 @@ backend:
       memory: 512Mi
 
 mysql:
-  image: digigrad/mysql:v1
+  image: elashrypublic/mysql:v1
   storage: 2Gi
   database: scada_db
   user: scada_user
