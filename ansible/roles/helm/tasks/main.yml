@@ -1,17 +1,25 @@
 ---
+- name: Check if Helm is already installed
+  stat:
+    path: /usr/local/bin/helm
+  register: helm_binary
+
 - name: Download Helm install script
   get_url:
     url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
     dest: /tmp/get_helm.sh
-    mode: '0755'
+    mode: "0755"
+  when: not helm_binary.stat.exists
 
 - name: Install Helm
-  command: /tmp/get_helm.sh
+  command: /tmp/get_helm.sh --version {{ helm_version }}
+  when: not helm_binary.stat.exists
 
 - name: Verify Helm installation
-  command: helm version
-  register: helm_version
+  command: helm version --short
+  register: helm_version_output
+  changed_when: false
 
-- name: Show Helm version
+- name: Display Helm version
   debug:
-    var: helm_version.stdout
+    var: helm_version_output.stdout

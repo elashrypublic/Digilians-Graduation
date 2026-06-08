@@ -1,0 +1,3 @@
+---
+eks_cluster_name: "scada-dev-eks"
+aws_region: "us-east-1"

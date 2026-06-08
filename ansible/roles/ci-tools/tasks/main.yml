@@ -1,0 +1,22 @@
+---
+- name: Create CI tools directory
+  file:
+    path: /opt/ci-tools
+    state: directory
+    mode: "0755"
+
+- name: Copy Docker Compose file
+  copy:
+    src: docker-compose.yml
+    dest: /opt/ci-tools/docker-compose.yml
+    mode: "0644"
+
+- name: Start CI tools stack
+  command: docker compose up -d
+  args:
+    chdir: /opt/ci-tools
+  register: ci_tools_result
+
+- name: Show CI tools status
+  debug:
+    var: ci_tools_result.stdout_lines

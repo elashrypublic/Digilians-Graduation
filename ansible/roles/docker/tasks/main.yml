@@ -1,16 +1,40 @@
 ---
-- name: Install Docker on RedHat family
-  package:
-    name: docker
-    state: present
-  when: ansible_os_family == "RedHat"
-
-- name: Install Docker on Debian family
+- name: Install required packages
   apt:
-    name: docker.io
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
     state: present
     update_cache: yes
-  when: ansible_os_family == "Debian"
+
+- name: Create Docker keyrings directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Download Docker GPG key
+  get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
+
+- name: Add Docker repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: Install Docker packages
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: yes
 
 - name: Start Docker service
   service:
@@ -18,29 +42,8 @@
     state: started
     enabled: yes
 
-- name: Install Docker Compose plugin (RedHat family)
-  package:
-    name: docker-compose-plugin
-    state: present
-  when: ansible_os_family == "RedHat"
-
-- name: Install Docker Compose plugin (Debian family)
-  apt:
-    name: docker-compose-plugin
-    state: present
-    update_cache: yes
-  when: ansible_os_family == "Debian"
-
-- name: Add ec2-user to docker group
-  user:
-    name: ec2-user
-    groups: docker
-    append: yes
-  when: ansible_distribution == "Amazon"
-
 - name: Add ubuntu user to docker group
   user:
     name: ubuntu
     groups: docker
     append: yes
-  when: ansible_distribution == "Ubuntu"

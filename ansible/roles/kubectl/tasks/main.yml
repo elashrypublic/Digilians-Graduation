@@ -1,20 +1,21 @@
 ---
-- name: Get latest stable kubectl version
-  uri:
-    url: https://dl.k8s.io/release/stable.txt
-    return_content: yes
-  register: kubectl_version
+- name: Check if kubectl is already installed
+  stat:
+    path: /usr/local/bin/kubectl
+  register: kubectl_binary
 
 - name: Download kubectl binary
   get_url:
-    url: "https://dl.k8s.io/release/{{ kubectl_version.content }}/bin/linux/amd64/kubectl"
+    url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl"
     dest: /usr/local/bin/kubectl
-    mode: '0755'
+    mode: "0755"
+  when: not kubectl_binary.stat.exists
 
 - name: Verify kubectl installation
   command: kubectl version --client
   register: kubectl_client
+  changed_when: false
 
-- name: Show kubectl version
+- name: Display kubectl version
   debug:
     var: kubectl_client.stdout

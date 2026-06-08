@@ -9,4 +9,7 @@
     - awscli
     - kubectl
     - helm
-    - monitoring
+    - trivy
+    - ci-tools
+    - eks-access
+    - argocd

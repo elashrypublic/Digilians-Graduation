@@ -45,9 +45,11 @@ services:
       - app-net
 
   ollama:
-    build:
-      context: .
-      dockerfile: ollama/Dockerfile
+
+    # build:
+    #   context: .
+    #   dockerfile: ollama/Dockerfile
+    image: docker-ollama:latest
     container_name: soc_ollama
     restart: unless-stopped
     ports:

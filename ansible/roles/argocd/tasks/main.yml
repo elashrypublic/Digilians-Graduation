@@ -1,0 +1,31 @@
+---
+- name: Add ArgoCD Helm repository
+  command: >
+    helm repo add argo {{ argocd_helm_repo }}
+  changed_when: false
+
+- name: Update Helm repositories
+  command: helm repo update
+  changed_when: false
+
+- name: Create ArgoCD namespace
+  command: kubectl create namespace {{ argocd_namespace }}
+  register: argocd_ns
+  failed_when: false
+  changed_when: "'created' in argocd_ns.stdout"
+
+- name: Install ArgoCD
+  command: >
+    helm upgrade --install argocd argo/argo-cd
+    --namespace {{ argocd_namespace }}
+    --version {{ argocd_chart_version }}
+  register: argocd_install
+
+- name: Verify ArgoCD pods
+  command: kubectl get pods -n {{ argocd_namespace }}
+  register: argocd_pods
+  changed_when: false
+
+- name: Show ArgoCD pods
+  debug:
+    var: argocd_pods.stdout_lines

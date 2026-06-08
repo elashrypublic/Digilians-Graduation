@@ -1,0 +1,26 @@
+---
+- name: Update kubeconfig for EKS cluster
+  command: >
+    aws eks update-kubeconfig
+    --region {{ aws_region }}
+    --name {{ eks_cluster_name }}
+  register: kubeconfig_update
+  changed_when: "'Added new context' in kubeconfig_update.stdout"
+
+- name: Verify AWS identity
+  command: aws sts get-caller-identity
+  register: aws_identity
+  changed_when: false
+
+- name: Show AWS identity
+  debug:
+    var: aws_identity.stdout
+
+- name: Verify Kubernetes access
+  command: kubectl get nodes
+  register: cluster_nodes
+  changed_when: false
+
+- name: Show cluster nodes
+  debug:
+    var: cluster_nodes.stdout_lines
